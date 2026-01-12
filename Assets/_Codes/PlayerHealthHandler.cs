@@ -1,4 +1,4 @@
-using System.Collections;
+﻿using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
 using UnityEngine.UI;
@@ -9,7 +9,9 @@ public class PlayerHealthHandler : MonoBehaviour
     public int PlayerMaxHealth;
     [SerializeField]
     public int PlayerCurrentHealth;
+
     private PlayerController _PlayerController;
+    private ConstantForce spinForce;   // 🔹 ĐỔI TÊN (FIX WARNING)
 
     public GameObject pickupParticle;
     public Transform topPlayerHead;
@@ -24,11 +26,20 @@ public class PlayerHealthHandler : MonoBehaviour
 
     private bool hasRespawned = false;
 
+    // ===== CONSTANT FORCE SETTING =====
+    public float spinDuration = 1.0f;
+    // ==================================
+
     void Start()
     {
         _PlayerController = GetComponent<PlayerController>();
-        spawner = GameObject.FindGameObjectWithTag("Respawn").
-            GetComponent<Respawner>();
+
+        spinForce = GetComponent<ConstantForce>(); // 🔹 FIX
+        if (spinForce != null)
+            spinForce.enabled = false;
+
+        spawner = GameObject.FindGameObjectWithTag("Respawn")
+            .GetComponent<Respawner>();
         spawner.SetPosition(transform.position);
 
         HeartPanel = GameObject.Find("HeartPanel").transform;
@@ -40,20 +51,20 @@ public class PlayerHealthHandler : MonoBehaviour
         }
 
         PlayerCurrentHealth = PlayerMaxHealth;
-       // LoadPlayerHealth();
     }
 
     void Update()
     {
         if (PlayerCurrentHealth <= 0)
         {
-            print("Player is dead!");
+            if (spinForce != null)
+                spinForce.enabled = false;
+
             spawner.playerIsDead();
             Instantiate(DeathParticle, transform.position, transform.rotation);
             Destroy(gameObject);
         }
 
-        // Check if the player's y coordinate is below -40
         if (transform.position.y < -40 && !hasRespawned)
         {
             PlayerCurrentHealth = 0;
@@ -90,10 +101,26 @@ public class PlayerHealthHandler : MonoBehaviour
         {
             PlayerCurrentHealth = 0;
         }
+
         _PlayerController.controller.Move(-push);
         _PlayerController.flashRed();
 
+        // ===== BẬT QUAY KHI MẤT MÁU =====
+        if (spinForce != null)
+        {
+            StopCoroutine(nameof(SpinRoutine));
+            StartCoroutine(SpinRoutine());
+        }
+        // =================================
+
         SavePlayerHealth();
+    }
+
+    IEnumerator SpinRoutine()
+    {
+        spinForce.enabled = true;
+        yield return new WaitForSeconds(spinDuration);
+        spinForce.enabled = false;
     }
 
     public void ResetHealth()
@@ -106,7 +133,8 @@ public class PlayerHealthHandler : MonoBehaviour
     void UpdateHearts()
     {
         Image[] icons = HeartPanel.GetComponentsInChildren<Image>();
-        int numIcons = Mathf.Min(PlayerMaxHealth, icons.Length - 1); // new code with gpt i dont give a shit
+        int numIcons = Mathf.Min(PlayerMaxHealth, icons.Length - 1);
+
         for (int n = 0; n < PlayerMaxHealth; n++)
         {
             if (n < PlayerCurrentHealth)
@@ -122,7 +150,6 @@ public class PlayerHealthHandler : MonoBehaviour
 
     private void SavePlayerHealth()
     {
-        // Save player health to PlayerPrefs
         PlayerPrefs.SetInt("PlayerMaxHealth", PlayerMaxHealth);
         PlayerPrefs.SetInt("PlayerCurrentHealth", PlayerCurrentHealth);
         PlayerPrefs.Save();
@@ -130,9 +157,7 @@ public class PlayerHealthHandler : MonoBehaviour
 
     private void LoadPlayerHealth()
     {
-        // Load player health from PlayerPrefs
         PlayerMaxHealth = PlayerPrefs.GetInt("PlayerMaxHealth", PlayerMaxHealth);
         PlayerCurrentHealth = PlayerPrefs.GetInt("PlayerCurrentHealth", PlayerMaxHealth);
     }
 }
-

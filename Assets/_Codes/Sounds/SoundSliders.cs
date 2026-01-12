@@ -27,7 +27,7 @@ public class SoundSliders : MonoBehaviour
         volume = Mathf.Clamp(volume, minVolume, maxVolume);
 
         // Update sound volume for all audio sources in the scene
-        AudioSource[] allAudioSources = FindObjectsOfType<AudioSource>();
+        AudioSource[] allAudioSources = UnityEngine.Object.FindObjectsByType<AudioSource>(FindObjectsInactive.Include, FindObjectsSortMode.None);
         foreach (AudioSource source in allAudioSources)
         {
             if (!source.CompareTag(musicTag))

@@ -6,7 +6,6 @@ using System.Threading.Tasks;
 using UnityEngine.SceneManagement;
 using UnityEngine;
 using UnityEngine.UI;
-using UnityEngine.SceneManagement;
 using System.Collections;
 
 public class CarPauseManager : MonoBehaviour
@@ -175,7 +174,12 @@ public class CarPauseManager : MonoBehaviour
 
     public void SoundVolumeChanged(float volume)
     {
-        AudioSource[] allAudioSources = FindObjectsOfType<AudioSource>();
+        // Replace deprecated FindObjectsOfType<T>() with the new API.
+        // Use FindObjectsInactive.Include to match previous behavior (include inactive objects)
+        // and FindObjectsSortMode.None to avoid unnecessary sorting overhead.
+        AudioSource[] allAudioSources = UnityEngine.Object.FindObjectsByType<AudioSource>(
+            FindObjectsInactive.Include, FindObjectsSortMode.None);
+
         foreach (AudioSource source in allAudioSources)
         {
             if (!source.CompareTag("musicSrc"))

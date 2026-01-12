@@ -17,7 +17,9 @@ public class carPause : MonoBehaviour
     {
         pauseMenuMusic.enabled = false;
         pausePanel.SetActive(false);
-        AudioSource[] foundAudioSources = FindObjectsOfType<AudioSource>();
+        // Use the new API to replace the obsolete FindObjectsOfType<T>() call.
+        AudioSource[] foundAudioSources = UnityEngine.Object.FindObjectsByType<AudioSource>(
+            FindObjectsInactive.Include, FindObjectsSortMode.None);
         allAudioSources.AddRange(foundAudioSources);
 
         foreach (AudioSource audioSource in allAudioSources)

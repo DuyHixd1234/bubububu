@@ -269,6 +269,7 @@ GameObject:
   - component: {fileID: 2760221059183711386}
   - component: {fileID: 2345004243912626805}
   - component: {fileID: 7570522186932895516}
+  - component: {fileID: 1496687399257721645}
   m_Layer: 0
   m_Name: _PlayerMouse
   m_TagString: Player
@@ -334,7 +335,6 @@ CharacterController:
     serializedVersion: 2
     m_Bits: 0
   m_LayerOverridePriority: 0
-  m_IsTrigger: 0
   m_ProvidesContacts: 0
   m_Enabled: 1
   serializedVersion: 3
@@ -357,13 +357,16 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 44a44f2e7bd078047892839150d6acf0, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  controller: {fileID: 0}
-  playerSpeed: 20
+  controller: {fileID: 4855329143057420321}
+  playerSpeed: 15
   jumpHeight: 2.5
   gravityValue: -50
   GroundTimer: 0
   flashColor: {r: 0.8301887, g: 0.13517387, b: 0.12844422, a: 0}
   intensity: 10
+  flashSound: {fileID: 0}
+  maxSlopeAngle: 120
+  slideSpeed: 3
 --- !u!114 &4363890894672822186
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -376,6 +379,12 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 41af3a381ecc23c4c94ff04f290ce047, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
+  src: {fileID: 0}
+  sfxRun: {fileID: 0}
+  sfxBlade: {fileID: 0}
+  sfxJump: {fileID: 0}
+  jumpEffectPrefab: {fileID: 0}
+  playerHealthHandler: {fileID: 0}
 --- !u!114 &2760221059183711386
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -388,8 +397,8 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: be98a29748b91dc4bb880fce2b68e422, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  PlayerMaxHealth: 4
-  PlayerCurrentHealth: 3
+  PlayerMaxHealth: 10
+  PlayerCurrentHealth: 10
   pickupParticle: {fileID: 100004, guid: 3af6f68141914ca43ba39b2403757bd0, type: 3}
   topPlayerHead: {fileID: 5808009246967751153}
   HeartIcon: {fileID: 2108651233622727228, guid: d3328bbb2eaca2e4793df140cc695b80,
@@ -398,6 +407,7 @@ MonoBehaviour:
   EmptyColor: {r: 0.23584908, g: 0.16998933, b: 0.18416272, a: 0.50980395}
   DeathParticle: {fileID: 5496479068107001516, guid: 542b4bb976def9846bbd3b70b8a734c9,
     type: 3}
+  spinDuration: 1
 --- !u!114 &2345004243912626805
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -426,6 +436,27 @@ MonoBehaviour:
   SwingDirection: {fileID: 8521882609978763728}
   SwingFx: {fileID: 6710139492206580332, guid: 95b8d3d65b5d7f1409c4ed1723887826, type: 3}
   SwingLocation: {fileID: 7165355277628255916}
+--- !u!65 &1496687399257721645
+BoxCollider:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 2706021191696193310}
+  m_Material: {fileID: 0}
+  m_IncludeLayers:
+    serializedVersion: 2
+    m_Bits: 0
+  m_ExcludeLayers:
+    serializedVersion: 2
+    m_Bits: 0
+  m_LayerOverridePriority: 0
+  m_IsTrigger: 0
+  m_ProvidesContacts: 0
+  m_Enabled: 1
+  serializedVersion: 3
+  m_Size: {x: 1, y: 1, z: 1}
+  m_Center: {x: 0, y: 0, z: 0}
 --- !u!1 &2947464354322201925
 GameObject:
   m_ObjectHideFlags: 0
@@ -509,6 +540,9 @@ SkinnedMeshRenderer:
   m_ReflectionProbeUsage: 1
   m_RayTracingMode: 3
   m_RayTraceProcedural: 0
+  m_RayTracingAccelStructBuildFlagsOverride: 0
+  m_RayTracingAccelStructBuildFlags: 1
+  m_SmallMeshCulling: 1
   m_RenderingLayerMask: 1
   m_RendererPriority: 0
   m_Materials:
@@ -630,6 +664,9 @@ SkinnedMeshRenderer:
   m_ReflectionProbeUsage: 1
   m_RayTracingMode: 3
   m_RayTraceProcedural: 0
+  m_RayTracingAccelStructBuildFlagsOverride: 0
+  m_RayTracingAccelStructBuildFlags: 1
+  m_SmallMeshCulling: 1
   m_RenderingLayerMask: 1
   m_RendererPriority: 0
   m_Materials:
@@ -1259,6 +1296,9 @@ MeshRenderer:
   m_ReflectionProbeUsage: 1
   m_RayTracingMode: 2
   m_RayTraceProcedural: 0
+  m_RayTracingAccelStructBuildFlagsOverride: 0
+  m_RayTracingAccelStructBuildFlags: 1
+  m_SmallMeshCulling: 1
   m_RenderingLayerMask: 1
   m_RendererPriority: 0
   m_Materials:
@@ -1389,7 +1429,7 @@ GameObject:
   - component: {fileID: 1134354602136062059}
   m_Layer: 0
   m_Name: Sword_Mesh
-  m_TagString: Untagged
+  m_TagString: swordSrc
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
   m_StaticEditorFlags: 0
@@ -1426,6 +1466,9 @@ SkinnedMeshRenderer:
   m_ReflectionProbeUsage: 1
   m_RayTracingMode: 3
   m_RayTraceProcedural: 0
+  m_RayTracingAccelStructBuildFlagsOverride: 0
+  m_RayTracingAccelStructBuildFlags: 1
+  m_SmallMeshCulling: 1
   m_RenderingLayerMask: 1
   m_RendererPriority: 0
   m_Materials:
@@ -1556,6 +1599,9 @@ MeshRenderer:
   m_ReflectionProbeUsage: 1
   m_RayTracingMode: 2
   m_RayTraceProcedural: 0
+  m_RayTracingAccelStructBuildFlagsOverride: 0
+  m_RayTracingAccelStructBuildFlags: 1
+  m_SmallMeshCulling: 1
   m_RenderingLayerMask: 1
   m_RendererPriority: 0
   m_Materials:
@@ -1620,6 +1666,8 @@ MonoBehaviour:
   knockbackPower: 8
   knockbackEnemyPower: 1.2
   hitFx: {fileID: 8525990746615576120, guid: b85d21f3b8fed714bacf0c4fd50fa512, type: 3}
+  hitSoundSource: {fileID: 0}
+  hitSoundClip: {fileID: 0}
 --- !u!1 &8548190804884722618
 GameObject:
   m_ObjectHideFlags: 0

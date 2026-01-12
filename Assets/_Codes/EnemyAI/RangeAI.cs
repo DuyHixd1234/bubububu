@@ -1,16 +1,17 @@
-using System.Collections;
+﻿using System.Collections;
 using System.Collections.Generic;
 using UnityEngine.AI;
 using UnityEngine;
 
 public class RangeAI : MonoBehaviour
 {
-    // Start is called before the first frame update
     [SerializeField]
     private float MaxDis;
+
     private Transform playerTransform;
     private NavMeshAgent agent;
     Vector3 StartPosition;
+
     public GameObject bomb;
     public Transform cannonPoint;
     float nextBomb;
@@ -20,53 +21,89 @@ public class RangeAI : MonoBehaviour
     public int enemyHP;
     public GameObject DestroyFX;
 
-    public AudioClip explosionSound; // Assign the explosion sound AudioClip in the Inspector
+    public AudioClip explosionSound;
     public AudioSource explosionAudioSource;
-    // Start is called before the first frame update
+
+    // 🔒 CỰC KỲ QUAN TRỌNG
+    void Awake()
+    {
+        agent = GetComponent<NavMeshAgent>();
+        agent.enabled = false; // CHỐT HẠ LỖI
+    }
+
     void Start()
     {
         StartPosition = transform.position;
-        agent = GetComponent<NavMeshAgent>();
-        explosionAudioSource = GameObject.FindGameObjectWithTag("swordSrc").GetComponent<AudioSource>();
-        playerTransform = GameObject.FindGameObjectWithTag("Player").transform;
+
+        // ===== ĐẶT AGENT LÊN NAVMESH ĐÚNG CÁCH =====
+        NavMeshHit hit;
+        if (NavMesh.SamplePosition(transform.position, out hit, 100f, NavMesh.AllAreas))
+        {
+            agent.Warp(hit.position);
+            agent.enabled = true;
+        }
+        else
+        {
+            Debug.LogError("[RangeAI] Không tìm thấy NavMesh cho enemy: " + gameObject.name);
+            return;
+        }
+        // ==========================================
+
+        GameObject playerObj = GameObject.FindGameObjectWithTag("Player");
+        if (playerObj != null)
+        {
+            playerTransform = playerObj.transform;
+        }
     }
 
-    // Update is called once per frame
     void Update()
     {
-        if(playerTransform != null) 
+        // ===== BẢO VỆ NAVMESH TUYỆT ĐỐI =====
+        if (agent == null) return;
+        if (!agent.enabled) return;
+        if (!agent.isOnNavMesh) return;
+        // ====================================
+
+        if (playerTransform != null)
         {
             float currentDis = Vector3.Distance(transform.position, playerTransform.position);
 
             if (currentDis <= MaxDis)
             {
-                Vector3 targetToLookAt = new Vector3(playerTransform.position.x, transform.position.y, playerTransform.position.z);
+                Vector3 targetToLookAt = new Vector3(
+                    playerTransform.position.x,
+                    transform.position.y,
+                    playerTransform.position.z
+                );
                 transform.LookAt(targetToLookAt);
-                if(Time.time >= nextBomb) 
+
+                if (Time.time >= nextBomb)
                 {
                     nextBomb = Time.time + 1f / fireRate;
                     Shoot();
                 }
             }
-            else if(currentDis > MaxDis && currentDis < MaxDis + 8) 
+            else if (currentDis > MaxDis && currentDis < MaxDis + 8)
             {
                 agent.SetDestination(playerTransform.position);
             }
-            else 
+            else
             {
                 agent.SetDestination(StartPosition);
-            }        
+            }
         }
-        else if (playerTransform == null)
+        else
         {
-            playerTransform = GameObject.FindGameObjectWithTag("Player")?.transform;
-            if (playerTransform == null)
+            GameObject playerObj = GameObject.FindGameObjectWithTag("Player");
+            if (playerObj != null)
             {
-                // Player object is still null, so we cannot proceed further
+                playerTransform = playerObj.transform;
+            }
+            else
+            {
                 return;
             }
         }
-
 
         if (enemyHP <= 0)
         {
@@ -75,17 +112,21 @@ public class RangeAI : MonoBehaviour
         }
     }
 
-    void Shoot() 
+    void Shoot()
     {
         GameObject b = Instantiate(bomb, cannonPoint.position, transform.rotation);
+
         Vector3 dir = playerTransform.position - transform.position;
         dir = dir.normalized;
-        b.GetComponent<Rigidbody>().AddForce(dir * bombForce);
-        b.GetComponent<Rigidbody>().useGravity = true;
+
+        Rigidbody rb = b.GetComponent<Rigidbody>();
+        rb.AddForce(dir * bombForce);
+        rb.useGravity = true;
+
         Destroy(b, 10);
+
         if (explosionSound != null && explosionAudioSource != null)
         {
-            explosionAudioSource.clip = explosionSound;
             explosionAudioSource.PlayOneShot(explosionSound);
         }
     }

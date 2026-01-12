@@ -1,5 +1,5 @@
 using System.Collections;
-using System.Collections.Generic;
+//using System.Collections.Generic;
 using UnityEngine;
 
 public class AnimationHandler : MonoBehaviour
@@ -25,40 +25,70 @@ public class AnimationHandler : MonoBehaviour
 
     public void Idle()
     {
-        _animator.SetBool("do_idle", true);
+        if (_animator != null)
+            _animator.SetBool("do_idle", true);
     }
 
     public void Run()
     {
-        _animator.SetBool("do_idle", false);
+        if (_animator != null)
+            _animator.SetBool("do_idle", false);
 
-        // Start playing the run sound
+        // Start playing the run sound (handled elsewhere)
     }
 
     public void Jump()
     {
-        _animator.SetTrigger("do_jump");
+        if (_animator != null)
+            _animator.SetTrigger("do_jump");
+
+        if (!isJumpSoundPlaying)
+        {
             StartCoroutine(PlayJumpSound());
+        }
+
+        if (jumpEffectPrefab != null)
+        {
             Instantiate(jumpEffectPrefab, transform.position, Quaternion.identity);
+        }
     }
 
     IEnumerator PlayJumpSound()
     {
+        if (src == null || sfxJump == null)
+            yield break;
+
+        isJumpSoundPlaying = true;
+
+        // tiny delay to let animation trigger (keeps previous behavior)
         yield return new WaitForSeconds(0.01f);
 
-        // Play the jump sound
+        // Play the jump sound using the clip length to wait
+        float length = sfxJump.length;
         src.clip = sfxJump;
         src.Play();
 
-        yield return new WaitForSeconds(src.clip.length);
+        yield return new WaitForSeconds(length);
 
         // Reset flag to indicate that the jump sound has finished playing
         isJumpSoundPlaying = false;
     }
+
     IEnumerator ResetAttackSoundFlag()
     {
-        // Wait for the duration of the attack sound
-        yield return new WaitForSeconds(src.clip.length);
+        // Determine attack clip duration safely
+        float length = 0f;
+        if (sfxBlade != null)
+        {
+            length = sfxBlade.length;
+        }
+        else if (src != null && src.clip != null)
+        {
+            length = src.clip.length;
+        }
+
+        if (length > 0f)
+            yield return new WaitForSeconds(length);
 
         // Reset flag to indicate that the attack sound has finished playing
         isAttackSoundPlaying = false;
@@ -66,17 +96,24 @@ public class AnimationHandler : MonoBehaviour
 
     public void AirBorn()
     {
-        _animator.SetBool("do_falling", true);
+        if (_animator != null)
+            _animator.SetBool("do_falling", true);
     }
 
     public void Landed()
     {
-        _animator.SetBool("do_falling", false);
+        if (_animator != null)
+            _animator.SetBool("do_falling", false);
     }
 
     public void Attack()
     {
-        _animator.SetTrigger("do_attack");
+        if (_animator != null)
+            _animator.SetTrigger("do_attack");
+
+        if (src == null || sfxBlade == null)
+            return;
+
         if (!isAttackSoundPlaying)
         {
             isAttackSoundPlaying = true;
@@ -92,11 +129,16 @@ public class AnimationHandler : MonoBehaviour
 
     public void PlayerDied()
     {
-       if (playerHealthHandler.PlayerCurrentHealth == 0)
-            src.Stop();
+        if (playerHealthHandler != null && playerHealthHandler.PlayerCurrentHealth == 0)
+        {
+            if (src != null)
+                src.Stop();
+        }
     }
+
     public void RestartSound()
     {
-        src.Play();
+        if (src != null)
+            src.Play();
     }
-}
+}           

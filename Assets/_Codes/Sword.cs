@@ -15,7 +15,7 @@ public class Sword : MonoBehaviour
     void Start()
     {
         // Find the audio source with the tag "swordSrc"
-        hitSoundSource = GameObject.FindGameObjectWithTag("swordSrc").GetComponent<AudioSource>();
+        //hitSoundSource = GameObject.FindGameObjectWithTag("swordSrc").GetComponent<AudioSource>();
     }
 
     private void OnTriggerEnter(Collider other)

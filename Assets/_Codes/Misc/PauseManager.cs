@@ -5,8 +5,7 @@ using System.Text;
 using System.Threading.Tasks;
 using UnityEngine.SceneManagement;
 using UnityEngine;
-using UnityEngine.UI;
-using UnityEngine.SceneManagement;
+using UnityEngine.UI;   
 using System.Collections;
 
 public class PauseManager : MonoBehaviour
@@ -175,7 +174,7 @@ public class PauseManager : MonoBehaviour
 
     public void SoundVolumeChanged(float volume)
     {
-        AudioSource[] allAudioSources = FindObjectsOfType<AudioSource>();
+        AudioSource[] allAudioSources = UnityEngine.Object.FindObjectsByType<AudioSource>(FindObjectsInactive.Include, FindObjectsSortMode.None);
         foreach (AudioSource source in allAudioSources)
         {
             if (!source.CompareTag("musicSrc"))

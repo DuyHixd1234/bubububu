@@ -45,7 +45,7 @@ public class PlayerController : MonoBehaviour
             }
             else
             {
-                Debug.LogError("AudioSource component with tag 'swordSrc' not found!");
+                
             }
         }
     }

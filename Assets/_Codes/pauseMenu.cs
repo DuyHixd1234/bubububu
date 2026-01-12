@@ -28,7 +28,7 @@ public class pauseMenu : MonoBehaviour
         }
         pauseMenuMusic.enabled = false;
         pausePanel.SetActive(false);
-        AudioSource[] foundAudioSources = FindObjectsOfType<AudioSource>();
+        AudioSource[] foundAudioSources = UnityEngine.Object.FindObjectsByType<AudioSource>(FindObjectsInactive.Include, FindObjectsSortMode.None);
         allAudioSources.AddRange(foundAudioSources);
 
         foreach (AudioSource audioSource in allAudioSources)

@@ -14,7 +14,7 @@ public class Bomb : MonoBehaviour
     private void Start()
     {
         clip = Resources.Load<AudioClip>("bomb");
-        bombSrc = GameObject.FindGameObjectWithTag("SoundManager").GetComponent<AudioSource>();
+        //bombSrc = GameObject.FindGameObjectWithTag("SoundManager").GetComponent<AudioSource>();
     }
     private void OnTriggerEnter(Collider other)
     {
